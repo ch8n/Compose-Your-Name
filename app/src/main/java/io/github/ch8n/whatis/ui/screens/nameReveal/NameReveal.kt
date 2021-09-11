@@ -5,87 +5,167 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import whatis.R
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import io.github.ch8n.whatis.ui.navigation.Screen
+import io.github.ch8n.whatis.ui.screens.home.safeRandomIndex
 
 @Composable
 fun NameRevealScreen(navController: NavHostController) {
-    val firstName: String = "Chetan"
-    val lastName: String = "Gupta"
-
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+    Box(
+        modifier = Modifier.fillMaxWidth()
     ) {
 
-        val firstChar = firstName.random()
-        val secondChar = firstName.random()
-        val thirdChar = lastName.random()
-        val fourthChar = lastName.random()
+        Box(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                val firstName by remember { mutableStateOf("Chetan") }
+                val lastName by remember { mutableStateOf("Gupta") }
+                val firstRandomIndex by remember { mutableStateOf(firstName.safeRandomIndex()) }
+                val secondRandomIndex by remember { mutableStateOf(lastName.safeRandomIndex()) }
 
-        Text(text = "Your Name")
-        Row {
-            firstName.forEach {
-                if (firstChar == it || secondChar == it){
-                    Text(text = "$it",modifier = Modifier.border(1.dp, Color.Red))
-                }else{
-                    Text(text = "$it")
+                if (firstName.length >= 7 || lastName.length >= 7) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .wrapContentHeight(),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Row {
+                            firstName.forEachIndexed { index, _char ->
+                                Text(
+                                    text = if (index == 0) _char.toUpperCase()
+                                        .toString() else _char.toString(),
+                                    style = MaterialTheme.typography.h1,
+                                    fontSize = 56.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    modifier = if (index == firstRandomIndex || index == firstRandomIndex + 1) {
+                                        Modifier.border(width = 1.dp, color = Color.Red)
+                                    } else {
+                                        Modifier
+                                    }
+                                )
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Row {
+                            lastName.forEachIndexed { index, _char ->
+                                Text(
+                                    text = _char.toString(),
+                                    style = MaterialTheme.typography.h1,
+                                    fontSize = 56.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    modifier = if (index == secondRandomIndex || index == secondRandomIndex + 1) {
+                                        Modifier.border(width = 1.dp, color = Color.Red)
+                                    } else {
+                                        Modifier
+                                    }
+                                )
+                            }
+                        }
+
+                    }
+                } else {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .wrapContentHeight(),
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        firstName.forEachIndexed { index, _char ->
+                            Text(
+                                text = _char.toString(),
+                                style = MaterialTheme.typography.h1,
+                                fontSize = 56.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                modifier = if (index == firstRandomIndex || index == firstRandomIndex + 1) {
+                                    Modifier.border(width = 1.dp, color = Color.Red)
+                                } else {
+                                    Modifier
+                                }
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(8.dp))
+                        lastName.forEachIndexed { index, _char ->
+                            Text(
+                                text = _char.toString(),
+                                style = MaterialTheme.typography.h1,
+                                fontSize = 56.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                modifier = if (index == secondRandomIndex || index == secondRandomIndex + 1) {
+                                    Modifier.border(width = 1.dp, color = Color.Red)
+                                } else {
+                                    Modifier
+                                }
+                            )
+                        }
+                    }
                 }
-            }
-            Spacer(modifier = Modifier.width(8.dp))
-            lastName.forEach {
-                if (thirdChar == it || fourthChar == it){
-                    Text(text = "$it",modifier = Modifier.border(1.dp, Color.Red))
-                }else{
-                    Text(text = "$it")
-                }
-            }
-        }
-        Text(text = "is")
-        val name = "$firstChar$secondChar$thirdChar$fourthChar".toLowerCase()
 
-        Row {
-            Text(text = name.take(1).toUpperCase()+name.drop(1))
-            Spacer(modifier = Modifier.width(6.dp))
-            IconButton(onClick = { /*TODO*/ }) {
-                Text(text = "Speak")
+
+
+                Text(
+                    text = "Is",
+                    style = MaterialTheme.typography.h2,
+                    fontWeight = FontWeight.Medium,
+                    fontSize = 42.sp,
+                )
+
+                val name =
+                    "${
+                        firstName.get(firstRandomIndex)
+                    }${
+                        firstName.get(firstRandomIndex + 1)
+                    }${
+                        lastName.get(secondRandomIndex)
+                    }${
+                        lastName.get(secondRandomIndex + 1)
+                    }".toLowerCase()
+
+                Text(
+                    text = name.take(1).toUpperCase() + name.drop(1),
+                    style = MaterialTheme.typography.h1,
+                    fontSize = 56.sp,
+                    fontWeight = FontWeight.SemiBold,
+                )
             }
         }
 
-        Spacer(modifier = Modifier.height(56.dp))
-        Button(onClick = { /*TODO*/ }) {
-            Icon(
-                painter = painterResource(id = R.drawable.crystal_ball),
-                contentDescription = "",
-                tint = Color.Unspecified,
-                modifier = Modifier.size(width = 24.dp, height = 24.dp)
-            )
-            Spacer(modifier = Modifier.width(6.dp))
-            Text(text = "Try again?")
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .offset(y = (-36).dp),
+            contentAlignment = Alignment.BottomCenter
+        ) {
+
+            OutlinedButton(onClick = { navController.navigate(Screen.NameForm.name) }) {
+                Text(
+                    text = "Share?",
+                    style = MaterialTheme.typography.h2,
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Medium
+                )
+            }
         }
-        Spacer(modifier = Modifier.height(12.dp))
-        Divider(color = Color.LightGray)
-        Spacer(modifier = Modifier.height(16.dp))
-        Text(text = "Share")
-        Spacer(modifier = Modifier.height(16.dp))
-        Row {
-            Text(text = "Whatsapp")
-            Spacer(modifier = Modifier.width(6.dp))
-            Text(text = "Instagram")
-            Spacer(modifier = Modifier.width(6.dp))
-            Text(text = "Facebook")
-        }
-        Spacer(modifier = Modifier.height(16.dp))
-        Text(text = "Share in What is? Community")
     }
 }
 
