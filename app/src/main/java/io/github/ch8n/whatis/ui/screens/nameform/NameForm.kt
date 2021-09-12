@@ -2,6 +2,8 @@ package io.github.ch8n.whatis.ui.screens.nameform
 
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -25,13 +27,19 @@ import java.util.*
 @Composable
 fun NameFormScreen(navController: NavHostController) {
     Box(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize(),
     ) {
 
         val (firstNameText, setFirstName) = remember { mutableStateOf("") }
         val (lastNameText, setLastName) = remember { mutableStateOf("") }
         Column(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(
+                    state = rememberScrollState(),
+                    enabled = true
+                ),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {

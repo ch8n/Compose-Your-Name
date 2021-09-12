@@ -33,15 +33,26 @@ fun String.safeRandomIndex(): Int {
     return if (isSafe) indexOfChar else safeRandomIndex()
 }
 
-fun main() {
-    val input = "abcde"
-    val index = input.safeRandomIndex()
-    println("$index -> ${input[index]}${input[index + 1]}")
-}
+val sampleNames = listOf<Pair<String, String>>(
+    "Katrina" to "Kaif",
+    "Divya" to "Gosh",
+    "Akshay" to "Kumar",
+    "Salman" to "Khan",
+    "Priyanka" to "Chopra",
+    "Ritik" to "Roshan",
+    "Alia" to "Bhatt",
+    "Amitabh" to "Bachchan",
+    "Amir" to "Khan",
+    "kareena" to "Kapoor",
+    "Anunshka" to "Sharma",
+    "Kangana" to "Ranaut",
+    "Ranveer" to "Singh",
+    "Aishwarya" to "Rai",
+    "Varun" to "Dhawan",
+)
 
 @Composable
 fun HomeScreen(navController: NavHostController) {
-
 
     Box(
         modifier = Modifier.fillMaxWidth()
@@ -55,8 +66,9 @@ fun HomeScreen(navController: NavHostController) {
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
-                val firstName by remember { mutableStateOf("Bhumica") }
-                val lastName by remember { mutableStateOf("Garg") }
+                val fullName = sampleNames.random()
+                val firstName by remember { mutableStateOf(fullName.first) }
+                val lastName by remember { mutableStateOf(fullName.second) }
                 val firstRandomIndex by remember { mutableStateOf(firstName.safeRandomIndex()) }
                 val secondRandomIndex by remember { mutableStateOf(lastName.safeRandomIndex()) }
 

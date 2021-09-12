@@ -27,21 +27,19 @@ data class ShareItem(
 
 val shareOptions = listOf(
     ShareItem(
-        icon = R.drawable.crystal_ball,
+        icon = R.drawable.share,
         name = "Share"
     ),
-    ShareItem(
-        icon = R.drawable.crystal_ball,
-        name = "Stories"
-    ),
+//    ShareItem(
+//        icon = R.drawable.story,
+//        name = "Stories"
+//    ),
 )
 
 class ShareActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_share)
-
-
         val firstName = requireNotNull(intent.extras?.getString("firstName"))
         val lastName = requireNotNull(intent.extras?.getString("lastName"))
         val firstRandomIndex = requireNotNull(intent.extras?.getInt("firstIndex"))
@@ -108,7 +106,8 @@ class ShareActivity : AppCompatActivity() {
                                         Icon(
                                             painter = painterResource(id = _share.icon),
                                             contentDescription = "",
-                                            tint = Color.Unspecified
+                                            tint = Color.Unspecified,
+                                            modifier = Modifier.size(width = 36.dp, height = 36.dp)
                                         )
                                         Text(text = _share.name)
                                     }
