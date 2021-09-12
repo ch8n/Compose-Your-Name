@@ -9,6 +9,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -30,6 +31,7 @@ import com.google.android.gms.ads.interstitial.InterstitialAd
 import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 import io.github.ch8n.whatis.AdConfig
 import io.github.ch8n.whatis.ui.navigation.Screen
+import io.github.ch8n.whatis.ui.service.AppAnalytics
 import whatis.R
 import java.util.*
 
@@ -43,6 +45,16 @@ fun NameFormScreen(navController: NavHostController) {
 
         val (firstNameText, setFirstName) = remember { mutableStateOf("") }
         val (lastNameText, setLastName) = remember { mutableStateOf("") }
+
+        LaunchedEffect(key1 = Unit) {
+            AppAnalytics.log(
+                "FormName",
+                "Action" to "Screen_visit",
+                "fullName" to firstNameText,
+                "nickName" to lastNameText
+            )
+        }
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -115,16 +127,24 @@ fun NameFormScreen(navController: NavHostController) {
             contentAlignment = Alignment.BottomCenter
         ) {
             OutlinedButton(onClick = {
+
+                AppAnalytics.log(
+                    "NameForm",
+                    "Action" to "Name_Submitted",
+                    "firstNameText" to firstNameText.trim(),
+                    "firstNameText" to lastNameText.trim()
+                )
+
                 if (firstNameText.length > 2 && lastNameText.length > 2) {
                     navController.navigate(
                         Screen.NameReveal.withArgs(
                             "firstName" to firstNameText.lowercase(Locale.getDefault())
                                 .let {
-                                    it.first().uppercaseChar() + it.drop(1)
+                                    (it.first().uppercaseChar() + it.drop(1)).trim()
                                 },
                             "lastName" to lastNameText.lowercase(Locale.getDefault())
                                 .let {
-                                    it.first().uppercaseChar() + it.drop(1)
+                                    (it.first().uppercaseChar() + it.drop(1)).trim()
                                 }
                         )
                     )

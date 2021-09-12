@@ -25,6 +25,7 @@ import io.github.ch8n.whatis.AdConfig
 import io.github.ch8n.whatis.ui.screens.home.safeRandomIndex
 import io.github.ch8n.whatis.ui.screens.nameform.loadAd
 import io.github.ch8n.whatis.ui.screens.shareName.ShareActivity
+import io.github.ch8n.whatis.ui.service.AppAnalytics
 import kotlinx.coroutines.launch
 import java.util.*
 
@@ -41,6 +42,39 @@ fun NameRevealScreen(
     var firstRandomIndex by remember { mutableStateOf(firstName.safeRandomIndex()) }
     var secondRandomIndex by remember { mutableStateOf(lastName.safeRandomIndex()) }
     val (adCounter, setAdCounter) = remember { mutableStateOf(1) }
+
+    val name = "${
+        firstName.get(firstRandomIndex)
+    }${
+        firstName.get(firstRandomIndex + 1)
+    }${
+        lastName.get(secondRandomIndex)
+    }${
+        lastName.get(secondRandomIndex + 1)
+    }".lowercase(Locale.getDefault()).run {
+        take(1).uppercase(Locale.getDefault()) + drop(1)
+    }
+
+    LaunchedEffect(key1 = Unit) {
+        AppAnalytics.log(
+            "NameReveal",
+            "Action" to "Screen_visit",
+            "firstName" to firstName,
+            "lastName" to lastName,
+            "nickName" to name
+        )
+    }
+
+    LaunchedEffect(key1 = firstRandomIndex, secondRandomIndex) {
+        AppAnalytics.log(
+            "NameReveal",
+            "Action" to "NickName_Refreshed",
+            "firstName" to firstName,
+            "lastName" to lastName,
+            "nickName" to name
+        )
+    }
+
 
     if (adCounter % 8 == 0) {
         loadAd(LocalContext.current, AdConfig())
@@ -162,17 +196,7 @@ fun NameRevealScreen(
                         fontSize = 42.sp,
                     )
 
-                    val name = "${
-                        firstName.get(firstRandomIndex)
-                    }${
-                        firstName.get(firstRandomIndex + 1)
-                    }${
-                        lastName.get(secondRandomIndex)
-                    }${
-                        lastName.get(secondRandomIndex + 1)
-                    }".lowercase(Locale.getDefault()).run {
-                        take(1).uppercase(Locale.getDefault()) + drop(1)
-                    }
+
 
                     Text(
                         text = name,
@@ -200,6 +224,13 @@ fun NameRevealScreen(
                             clipboardManager.setText(buildAnnotatedString {
                                 append("$firstName $lastName is $name")
                             })
+                            AppAnalytics.log(
+                                "NameReveal",
+                                "Action" to "Copy_Clicked",
+                                "firstName" to firstName,
+                                "lastName" to lastName,
+                                "nickName" to name
+                            )
                             scope.launch {
                                 scaffoldState.snackbarHostState
                                     .showSnackbar(
@@ -229,6 +260,13 @@ fun NameRevealScreen(
             ) {
                 OutlinedButton(onClick = {
                     setAdCounter(adCounter + 1)
+                    AppAnalytics.log(
+                        "NameReveal",
+                        "Action" to "Share_Clicked",
+                        "firstName" to firstName,
+                        "lastName" to lastName,
+                        "nickName" to name
+                    )
                     currentContext.startActivity(
                         Intent(currentContext, ShareActivity::class.java)
                             .also {

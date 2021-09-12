@@ -5,10 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.OutlinedButton
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -20,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import io.github.ch8n.whatis.ui.navigation.Screen
+import io.github.ch8n.whatis.ui.service.AppAnalytics
 import java.util.*
 
 
@@ -54,6 +52,30 @@ val sampleNames = listOf<Pair<String, String>>(
 @Composable
 fun HomeScreen(navController: NavHostController) {
 
+    val fullName = remember { sampleNames.random() }
+    val firstName by remember { mutableStateOf(fullName.first) }
+    val lastName by remember { mutableStateOf(fullName.second) }
+    val firstRandomIndex by remember { mutableStateOf(firstName.safeRandomIndex()) }
+    val secondRandomIndex by remember { mutableStateOf(lastName.safeRandomIndex()) }
+    val nicName = "${
+        firstName.get(firstRandomIndex)
+    }${
+        firstName.get(firstRandomIndex + 1)
+    }${
+        lastName.get(secondRandomIndex)
+    }${
+        lastName.get(secondRandomIndex + 1)
+    }".lowercase(Locale.getDefault())
+
+    LaunchedEffect(key1 = Unit) {
+        AppAnalytics.log(
+            "HomeScreen",
+            "Action" to "Screen_visit",
+            "fullName" to fullName,
+            "nickName" to nicName
+        )
+    }
+
     Box(
         modifier = Modifier.fillMaxWidth()
     ) {
@@ -66,11 +88,6 @@ fun HomeScreen(navController: NavHostController) {
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
-                val fullName = sampleNames.random()
-                val firstName by remember { mutableStateOf(fullName.first) }
-                val lastName by remember { mutableStateOf(fullName.second) }
-                val firstRandomIndex by remember { mutableStateOf(firstName.safeRandomIndex()) }
-                val secondRandomIndex by remember { mutableStateOf(lastName.safeRandomIndex()) }
 
                 Text(
                     text = "If",
@@ -165,19 +182,10 @@ fun HomeScreen(navController: NavHostController) {
                     fontSize = 42.sp,
                 )
 
-                val name =
-                    "${
-                        firstName.get(firstRandomIndex)
-                    }${
-                        firstName.get(firstRandomIndex + 1)
-                    }${
-                        lastName.get(secondRandomIndex)
-                    }${
-                        lastName.get(secondRandomIndex + 1)
-                    }".lowercase(Locale.getDefault())
+
 
                 Text(
-                    text = name.take(1).uppercase(Locale.getDefault()) + name.drop(1),
+                    text = nicName.take(1).uppercase(Locale.getDefault()) + nicName.drop(1),
                     style = MaterialTheme.typography.h1,
                     fontSize = 56.sp,
                     fontWeight = FontWeight.SemiBold,
@@ -193,6 +201,12 @@ fun HomeScreen(navController: NavHostController) {
         ) {
 
             OutlinedButton(onClick = {
+                AppAnalytics.log(
+                    "HomeScreen",
+                    "Action" to "Continue_Clicked",
+                    "fullName" to fullName,
+                    "nickName" to nicName
+                )
                 navController.navigate(Screen.NameForm.route)
             }) {
                 Text(

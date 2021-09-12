@@ -16,6 +16,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import io.github.ch8n.whatis.AdConfig
 import io.github.ch8n.whatis.ui.screens.nameform.loadAd
+import io.github.ch8n.whatis.ui.service.AppAnalytics
 import io.github.ch8n.whatis.ui.theme.WhatisTheme
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
@@ -49,6 +50,13 @@ class ShareActivity : AppCompatActivity() {
 
         val composeView = findViewById<ComposeView>(R.id.compose_view)
         val composeShareActions = findViewById<ComposeView>(R.id.compose_view_share_actions)
+
+        AppAnalytics.log(
+            "ShareScreen",
+            "Action" to "Screen_visit",
+            "firstName" to firstName,
+            "lastName" to lastName
+        )
 
         composeView.apply {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
@@ -95,6 +103,10 @@ class ShareActivity : AppCompatActivity() {
                                         modifier = Modifier
                                             .padding(start = 16.dp)
                                             .clickable {
+                                                AppAnalytics.log(
+                                                    "ShareScreen",
+                                                    "Action" to "Share_Clicked"
+                                                )
                                                 loadAd(this@ShareActivity, AdConfig(
                                                     onAdDismissed = {
                                                         share(composeView)
