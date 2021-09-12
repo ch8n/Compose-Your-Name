@@ -4,6 +4,8 @@ package io.github.ch8n.whatis.ui.screens.nameform
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -17,6 +19,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import io.github.ch8n.whatis.ui.navigation.Screen
 import whatis.R
+import java.util.*
 
 
 @Composable
@@ -24,11 +27,15 @@ fun NameFormScreen(navController: NavHostController) {
     Box(
         modifier = Modifier.fillMaxSize(),
     ) {
+
+        val (firstNameText, setFirstName) = remember { mutableStateOf("") }
+        val (lastNameText, setLastName) = remember { mutableStateOf("") }
         Column(
             modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
+
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -45,10 +52,15 @@ fun NameFormScreen(navController: NavHostController) {
                 modifier = Modifier
                     .fillMaxWidth(0.8f)
                     .wrapContentHeight(),
-                value = "Chetan",
+                placeholder = {
+                    Text(text = "Name")
+                },
                 onValueChange = {
-
-                }
+                    setFirstName(it)
+                },
+                value = firstNameText,
+                singleLine = true,
+                isError = firstNameText.length < 3
             )
 
             Spacer(modifier = Modifier.height(28.dp))
@@ -66,18 +78,41 @@ fun NameFormScreen(navController: NavHostController) {
                 modifier = Modifier
                     .fillMaxWidth(0.8f)
                     .wrapContentHeight(),
-                value = "Gupta",
+                placeholder = {
+                    Text(text = "Surname")
+                },
                 onValueChange = {
-
-                }
+                    setLastName(it)
+                },
+                value = lastNameText,
+                singleLine = true,
+                isError = lastNameText.length < 3
             )
         }
 
         Box(
-            modifier = Modifier.fillMaxSize().offset(y= (-36f).dp),
+            modifier = Modifier
+                .fillMaxSize()
+                .offset(y = (-36f).dp),
             contentAlignment = Alignment.BottomCenter
         ) {
-            OutlinedButton(onClick = { navController.navigate(Screen.NameReveal.name) }) {
+            OutlinedButton(onClick = {
+                if (firstNameText.length > 3 && lastNameText.length > 3) {
+                    navController.navigate(
+                        Screen.NameReveal.withArgs(
+                            "firstName" to firstNameText.lowercase(Locale.getDefault())
+                                .let {
+                                    it.first().uppercaseChar() + it.drop(1)
+                                },
+                            "lastName" to lastNameText.lowercase(Locale.getDefault())
+                                .let {
+                                    it.first().uppercaseChar() + it.drop(1)
+                                }
+                        )
+                    )
+                }
+
+            }) {
                 Icon(
                     painter = painterResource(id = R.drawable.crystal_ball),
                     contentDescription = "",

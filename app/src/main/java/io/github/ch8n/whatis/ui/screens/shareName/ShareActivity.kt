@@ -16,7 +16,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import io.github.ch8n.whatis.ui.theme.WhatisTheme
 import kotlinx.coroutines.MainScope
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import whatis.R
 
@@ -129,7 +128,6 @@ class ShareActivity : AppCompatActivity() {
     fun share(composeView: ComposeView) {
         val bitmap = composeView.toBitmap()
         MainScope().launch {
-            delay(1000)
             if (bitmap != null) {
                 val uri = saveImage(bitmap, this@ShareActivity)
                 if (uri != null) {

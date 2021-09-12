@@ -29,11 +29,13 @@ import java.util.*
 
 @ExperimentalMaterialApi
 @Composable
-fun NameRevealScreen(navController: NavHostController) {
+fun NameRevealScreen(
+    navController: NavHostController,
+    firstName: String,
+    lastName: String
+) {
     val scaffoldState = rememberScaffoldState()
     val scope = rememberCoroutineScope()
-    val firstName by remember { mutableStateOf("Pooja") }
-    val lastName by remember { mutableStateOf("Srivastav") }
     var firstRandomIndex by remember { mutableStateOf(firstName.safeRandomIndex()) }
     var secondRandomIndex by remember { mutableStateOf(lastName.safeRandomIndex()) }
 
@@ -65,7 +67,7 @@ fun NameRevealScreen(navController: NavHostController) {
                     verticalArrangement = Arrangement.Center
                 ) {
 
-                    if (firstName.length >= 7 || lastName.length >= 7) {
+                    if (firstName.length >= 6 || lastName.length >= 6) {
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
@@ -249,5 +251,5 @@ fun NameRevealScreen(navController: NavHostController) {
 )
 @Composable
 fun PreviewNameRevealScreen() {
-    NameRevealScreen(NavHostController(LocalContext.current))
+    NameRevealScreen(NavHostController(LocalContext.current), "", "")
 }
