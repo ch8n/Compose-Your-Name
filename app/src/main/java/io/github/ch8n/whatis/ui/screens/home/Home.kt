@@ -2,21 +2,14 @@ package io.github.ch8n.whatis.ui.screens.home
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.OutlinedButton
+import androidx.compose.material.Text
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.*
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
@@ -24,9 +17,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import io.github.ch8n.whatis.ui.navigation.Screen
-import io.github.ch8n.whatis.ui.theme.NunitoSansFontFamily
-import whatis.R
-import kotlin.random.Random
+import io.github.ch8n.whatis.ui.service.AppAnalytics
+import java.util.*
 
 
 fun String.safeRandomIndex(): Int {
@@ -39,15 +31,50 @@ fun String.safeRandomIndex(): Int {
     return if (isSafe) indexOfChar else safeRandomIndex()
 }
 
-fun main() {
-    val input = "abcde"
-    val index = input.safeRandomIndex()
-    println("$index -> ${input[index]}${input[index + 1]}")
-}
+val sampleNames = listOf<Pair<String, String>>(
+    "Katrina" to "Kaif",
+    "Divya" to "Gosh",
+    "Akshay" to "Kumar",
+    "Salman" to "Khan",
+    "Priyanka" to "Chopra",
+    "Ritik" to "Roshan",
+    "Alia" to "Bhatt",
+    "Amitabh" to "Bachchan",
+    "Amir" to "Khan",
+    "kareena" to "Kapoor",
+    "Anunshka" to "Sharma",
+    "Kangana" to "Ranaut",
+    "Ranveer" to "Singh",
+    "Aishwarya" to "Rai",
+    "Varun" to "Dhawan",
+)
 
 @Composable
 fun HomeScreen(navController: NavHostController) {
 
+    val fullName = remember { sampleNames.random() }
+    val firstName by remember { mutableStateOf(fullName.first) }
+    val lastName by remember { mutableStateOf(fullName.second) }
+    val firstRandomIndex by remember { mutableStateOf(firstName.safeRandomIndex()) }
+    val secondRandomIndex by remember { mutableStateOf(lastName.safeRandomIndex()) }
+    val nicName = "${
+        firstName.get(firstRandomIndex)
+    }${
+        firstName.get(firstRandomIndex + 1)
+    }${
+        lastName.get(secondRandomIndex)
+    }${
+        lastName.get(secondRandomIndex + 1)
+    }".lowercase(Locale.getDefault())
+
+    LaunchedEffect(key1 = Unit) {
+        AppAnalytics.log(
+            "HomeScreen",
+            "Action" to "Screen_visit",
+            "fullName" to fullName,
+            "nickName" to nicName
+        )
+    }
 
     Box(
         modifier = Modifier.fillMaxWidth()
@@ -61,10 +88,6 @@ fun HomeScreen(navController: NavHostController) {
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {
-                val firstName by remember { mutableStateOf("Bhumica") }
-                val lastName by remember { mutableStateOf("Garg") }
-                val firstRandomIndex by remember { mutableStateOf(firstName.safeRandomIndex()) }
-                val secondRandomIndex by remember { mutableStateOf(lastName.safeRandomIndex()) }
 
                 Text(
                     text = "If",
@@ -83,7 +106,7 @@ fun HomeScreen(navController: NavHostController) {
                         Row {
                             firstName.forEachIndexed { index, _char ->
                                 Text(
-                                    text = if (index == 0) _char.toUpperCase()
+                                    text = if (index == 0) _char.uppercaseChar()
                                         .toString() else _char.toString(),
                                     style = MaterialTheme.typography.h1,
                                     fontSize = 56.sp,
@@ -152,8 +175,6 @@ fun HomeScreen(navController: NavHostController) {
                     }
                 }
 
-
-
                 Text(
                     text = "Is",
                     style = MaterialTheme.typography.h2,
@@ -161,19 +182,10 @@ fun HomeScreen(navController: NavHostController) {
                     fontSize = 42.sp,
                 )
 
-                val name =
-                    "${
-                        firstName.get(firstRandomIndex)
-                    }${
-                        firstName.get(firstRandomIndex + 1)
-                    }${
-                        lastName.get(secondRandomIndex)
-                    }${
-                        lastName.get(secondRandomIndex + 1)
-                    }".toLowerCase()
+
 
                 Text(
-                    text = name.take(1).toUpperCase() + name.drop(1),
+                    text = nicName.take(1).uppercase(Locale.getDefault()) + nicName.drop(1),
                     style = MaterialTheme.typography.h1,
                     fontSize = 56.sp,
                     fontWeight = FontWeight.SemiBold,
@@ -188,7 +200,15 @@ fun HomeScreen(navController: NavHostController) {
             contentAlignment = Alignment.BottomCenter
         ) {
 
-            OutlinedButton(onClick = { navController.navigate(Screen.NameForm.name) }) {
+            OutlinedButton(onClick = {
+                AppAnalytics.log(
+                    "HomeScreen",
+                    "Action" to "Continue_Clicked",
+                    "fullName" to fullName,
+                    "nickName" to nicName
+                )
+                navController.navigate(Screen.NameForm.route)
+            }) {
                 Text(
                     text = "What's Yours?",
                     style = MaterialTheme.typography.h2,

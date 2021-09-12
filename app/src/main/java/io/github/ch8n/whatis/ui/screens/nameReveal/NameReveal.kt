@@ -1,100 +1,301 @@
 package io.github.ch8n.whatis.ui.screens.nameReveal
 
 
+import android.content.Intent
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.ContentCopy
+import androidx.compose.material.icons.rounded.Refresh
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import whatis.R
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import io.github.ch8n.whatis.ui.screens.home.safeRandomIndex
+import io.github.ch8n.whatis.ui.screens.shareName.ShareActivity
+import io.github.ch8n.whatis.ui.service.AppAnalytics
+import kotlinx.coroutines.launch
+import java.util.*
 
+
+@ExperimentalMaterialApi
 @Composable
-fun NameRevealScreen(navController: NavHostController) {
-    val firstName: String = "Chetan"
-    val lastName: String = "Gupta"
+fun NameRevealScreen(
+    navController: NavHostController,
+    firstName: String,
+    lastName: String
+) {
+    val scaffoldState = rememberScaffoldState()
+    val scope = rememberCoroutineScope()
+    var firstRandomIndex by remember { mutableStateOf(firstName.safeRandomIndex()) }
+    var secondRandomIndex by remember { mutableStateOf(lastName.safeRandomIndex()) }
+    val (adCounter, setAdCounter) = remember { mutableStateOf(1) }
 
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
+    val name = "${
+        firstName.get(firstRandomIndex)
+    }${
+        firstName.get(firstRandomIndex + 1)
+    }${
+        lastName.get(secondRandomIndex)
+    }${
+        lastName.get(secondRandomIndex + 1)
+    }".lowercase(Locale.getDefault()).run {
+        take(1).uppercase(Locale.getDefault()) + drop(1)
+    }
 
-        val firstChar = firstName.random()
-        val secondChar = firstName.random()
-        val thirdChar = lastName.random()
-        val fourthChar = lastName.random()
+    LaunchedEffect(key1 = Unit) {
+        AppAnalytics.log(
+            "NameReveal",
+            "Action" to "Screen_visit",
+            "firstName" to firstName,
+            "lastName" to lastName,
+            "nickName" to name
+        )
+    }
 
-        Text(text = "Your Name")
-        Row {
-            firstName.forEach {
-                if (firstChar == it || secondChar == it){
-                    Text(text = "$it",modifier = Modifier.border(1.dp, Color.Red))
-                }else{
-                    Text(text = "$it")
+    LaunchedEffect(key1 = firstRandomIndex, secondRandomIndex) {
+        AppAnalytics.log(
+            "NameReveal",
+            "Action" to "NickName_Refreshed",
+            "firstName" to firstName,
+            "lastName" to lastName,
+            "nickName" to name
+        )
+    }
+
+
+    if (adCounter % 8 == 0) {
+        //loadAd(LocalContext.current, AdConfig())
+    }
+
+    Scaffold(
+        scaffoldState = scaffoldState,
+        snackbarHost = {
+            SnackbarHost(it) { data ->
+                Snackbar(modifier = Modifier.padding(8.dp)) {
+                    Text(text = data.message)
                 }
             }
-            Spacer(modifier = Modifier.width(8.dp))
-            lastName.forEach {
-                if (thirdChar == it || fourthChar == it){
-                    Text(text = "$it",modifier = Modifier.border(1.dp, Color.Red))
-                }else{
-                    Text(text = "$it")
+        },
+        modifier = Modifier.fillMaxSize()
+    ) { _innerPadding ->
+
+        Box(
+            modifier = Modifier
+                .padding(_innerPadding)
+                .fillMaxSize()
+                .wrapContentSize()
+        ) {
+
+            Box(
+                modifier = Modifier.fillMaxSize()
+            ) {
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+
+                    if (firstName.length >= 6 || lastName.length >= 6) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .wrapContentHeight(),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Row {
+                                firstName.forEachIndexed { index, _char ->
+                                    Text(
+                                        text = if (index == 0) _char.uppercaseChar()
+                                            .toString() else _char.toString(),
+                                        style = MaterialTheme.typography.h1,
+                                        fontSize = 56.sp,
+                                        fontWeight = FontWeight.SemiBold,
+                                        modifier = if (index == firstRandomIndex || index == firstRandomIndex + 1) {
+                                            Modifier.border(width = 1.dp, color = Color.Red)
+                                        } else {
+                                            Modifier
+                                        }
+                                    )
+                                }
+                            }
+
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Row {
+                                lastName.forEachIndexed { index, _char ->
+                                    Text(
+                                        text = _char.toString(),
+                                        style = MaterialTheme.typography.h1,
+                                        fontSize = 56.sp,
+                                        fontWeight = FontWeight.SemiBold,
+                                        modifier = if (index == secondRandomIndex || index == secondRandomIndex + 1) {
+                                            Modifier.border(width = 1.dp, color = Color.Red)
+                                        } else {
+                                            Modifier
+                                        }
+                                    )
+                                }
+                            }
+
+                        }
+                    } else {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .wrapContentHeight(),
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            firstName.forEachIndexed { index, _char ->
+                                Text(
+                                    text = _char.toString(),
+                                    style = MaterialTheme.typography.h1,
+                                    fontSize = 56.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    modifier = if (index == firstRandomIndex || index == firstRandomIndex + 1) {
+                                        Modifier.border(width = 1.dp, color = Color.Red)
+                                    } else {
+                                        Modifier
+                                    }
+                                )
+                            }
+                            Spacer(modifier = Modifier.width(8.dp))
+                            lastName.forEachIndexed { index, _char ->
+                                Text(
+                                    text = _char.toString(),
+                                    style = MaterialTheme.typography.h1,
+                                    fontSize = 56.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    modifier = if (index == secondRandomIndex || index == secondRandomIndex + 1) {
+                                        Modifier.border(width = 1.dp, color = Color.Red)
+                                    } else {
+                                        Modifier
+                                    }
+                                )
+                            }
+                        }
+                    }
+
+
+
+                    Text(
+                        text = "Is",
+                        style = MaterialTheme.typography.h2,
+                        fontWeight = FontWeight.Medium,
+                        fontSize = 42.sp,
+                    )
+
+
+
+                    Text(
+                        text = name,
+                        style = MaterialTheme.typography.h1,
+                        fontSize = 56.sp,
+                        fontWeight = FontWeight.SemiBold,
+                    )
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    Row(
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        IconButton(onClick = {
+                            setAdCounter(adCounter + 1)
+                            firstRandomIndex = firstName.safeRandomIndex()
+                            secondRandomIndex = lastName.safeRandomIndex()
+                        }) {
+                            Icon(imageVector = Icons.Rounded.Refresh, contentDescription = "")
+                        }
+
+                        val clipboardManager = LocalClipboardManager.current
+                        IconButton(onClick = {
+                            setAdCounter(adCounter + 1)
+                            clipboardManager.setText(buildAnnotatedString {
+                                append("$firstName $lastName is $name")
+                            })
+                            AppAnalytics.log(
+                                "NameReveal",
+                                "Action" to "Copy_Clicked",
+                                "firstName" to firstName,
+                                "lastName" to lastName,
+                                "nickName" to name
+                            )
+                            scope.launch {
+                                scaffoldState.snackbarHostState
+                                    .showSnackbar(
+                                        message = "Copied to Clipboard...",
+                                        duration = SnackbarDuration.Short
+                                    )
+                            }
+                        }) {
+                            Icon(
+                                imageVector = Icons.Outlined.ContentCopy,
+                                contentDescription = ""
+                            )
+                        }
+
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
+            }
+
+            val currentContext = LocalContext.current
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .offset(y = (-36).dp),
+                contentAlignment = Alignment.BottomCenter
+            ) {
+                OutlinedButton(onClick = {
+                    setAdCounter(adCounter + 1)
+                    AppAnalytics.log(
+                        "NameReveal",
+                        "Action" to "Share_Clicked",
+                        "firstName" to firstName,
+                        "lastName" to lastName,
+                        "nickName" to name
+                    )
+                    currentContext.startActivity(
+                        Intent(currentContext, ShareActivity::class.java)
+                            .also {
+                                it.putExtra("firstName", firstName)
+                                it.putExtra("lastName", lastName)
+                                it.putExtra("firstIndex", firstRandomIndex)
+                                it.putExtra("secondIndex", secondRandomIndex)
+                            }
+                    )
+                }) {
+                    Text(
+                        text = "Share?",
+                        style = MaterialTheme.typography.h2,
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Medium
+                    )
                 }
             }
         }
-        Text(text = "is")
-        val name = "$firstChar$secondChar$thirdChar$fourthChar".toLowerCase()
 
-        Row {
-            Text(text = name.take(1).toUpperCase()+name.drop(1))
-            Spacer(modifier = Modifier.width(6.dp))
-            IconButton(onClick = { /*TODO*/ }) {
-                Text(text = "Speak")
-            }
-        }
-
-        Spacer(modifier = Modifier.height(56.dp))
-        Button(onClick = { /*TODO*/ }) {
-            Icon(
-                painter = painterResource(id = R.drawable.crystal_ball),
-                contentDescription = "",
-                tint = Color.Unspecified,
-                modifier = Modifier.size(width = 24.dp, height = 24.dp)
-            )
-            Spacer(modifier = Modifier.width(6.dp))
-            Text(text = "Try again?")
-        }
-        Spacer(modifier = Modifier.height(12.dp))
-        Divider(color = Color.LightGray)
-        Spacer(modifier = Modifier.height(16.dp))
-        Text(text = "Share")
-        Spacer(modifier = Modifier.height(16.dp))
-        Row {
-            Text(text = "Whatsapp")
-            Spacer(modifier = Modifier.width(6.dp))
-            Text(text = "Instagram")
-            Spacer(modifier = Modifier.width(6.dp))
-            Text(text = "Facebook")
-        }
-        Spacer(modifier = Modifier.height(16.dp))
-        Text(text = "Share in What is? Community")
     }
 }
 
 
+@ExperimentalMaterialApi
 @Preview(
     showBackground = true,
     device = Devices.NEXUS_6P
 )
 @Composable
 fun PreviewNameRevealScreen() {
-    NameRevealScreen(NavHostController(LocalContext.current))
+    NameRevealScreen(NavHostController(LocalContext.current), "", "")
 }
+
