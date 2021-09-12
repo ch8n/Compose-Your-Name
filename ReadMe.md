@@ -4,8 +4,16 @@ A Jetpack Compose App Meme App for knowing you nick name
 ## Inspiration
 You recently might have seen this meme on Instagram, I also did so a sample app idea popped into my head
 
-<img src="./whatName1.jpg" height="200">
-<img src="./whatName2.jpg" height="200">
+<tr>
+    <td>
+        <img src="./whatName1.jpg" height="200">
+    </td>
+    <td>
+        <img src="./whatName2.jpg" height="200">
+    </td>
+</tr>
+
+
 
 ## Preview
 <table>
