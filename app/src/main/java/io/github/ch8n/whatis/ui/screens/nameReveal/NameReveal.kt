@@ -1,6 +1,7 @@
 package io.github.ch8n.whatis.ui.screens.nameReveal
 
 
+import android.content.Intent
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -23,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import io.github.ch8n.whatis.ui.screens.home.safeRandomIndex
+import io.github.ch8n.whatis.ui.screens.shareName.ShareActivity
 import kotlinx.coroutines.launch
 import whatis.R
 import java.util.*
@@ -86,7 +88,15 @@ fun NameRevealScreen(navController: NavHostController) {
                                 modifier = Modifier
                                     .padding(start = 16.dp)
                                     .clickable {
-                                        //TODO start activity
+                                        currentContext.startActivity(
+                                            Intent(currentContext, ShareActivity::class.java)
+                                                .also {
+                                                    it.putExtra("firstName", firstName)
+                                                    it.putExtra("lastName", lastName)
+                                                    it.putExtra("firstIndex", firstRandomIndex)
+                                                    it.putExtra("secondIndex", secondRandomIndex)
+                                                }
+                                        )
                                     }
                             ) {
                                 Icon(

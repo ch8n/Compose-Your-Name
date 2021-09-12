@@ -19,6 +19,7 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />
         </provider>
+
         <activity
             android:name="io.github.ch8n.whatis.MainActivity"
             android:exported="true"
@@ -30,6 +31,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name="io.github.ch8n.whatis.ui.screens.shareName.ShareActivity"
+            android:exported="true" />
     </application>
 
 </manifest>

@@ -1,4 +1,4 @@
-package io.github.ch8n.whatis.ui.screens.nameReveal.components
+package io.github.ch8n.whatis.ui.screens.shareName
 
 import android.content.Context
 import android.content.Intent
@@ -231,6 +231,14 @@ fun NameToBitmap(
 
         Spacer(modifier = Modifier.height(16.dp))
     }
+}
+
+
+fun View.toBitmap(): Bitmap? {
+    val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+    val canvas = Canvas(bitmap)
+    draw(canvas)
+    return bitmap
 }
 
 suspend fun saveImage(image: Bitmap, context: Context): Uri? =
