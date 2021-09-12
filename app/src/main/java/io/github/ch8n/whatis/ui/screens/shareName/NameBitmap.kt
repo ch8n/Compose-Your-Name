@@ -5,21 +5,17 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.net.Uri
-import android.util.AttributeSet
 import android.util.Log
 import android.view.View
-import androidx.appcompat.widget.LinearLayoutCompat
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -30,76 +26,6 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 import java.util.*
-
-class GraphicUtils {
-
-    fun createBitmapFromView(view: View, width: Int, height: Int): Bitmap {
-        view.layoutParams = LinearLayoutCompat.LayoutParams(
-            LinearLayoutCompat.LayoutParams.WRAP_CONTENT,
-            LinearLayoutCompat.LayoutParams.WRAP_CONTENT
-        )
-
-        view.measure(
-            View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.EXACTLY),
-            View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.EXACTLY)
-        )
-
-        view.layout(0, 0, width, height)
-
-        val canvas = Canvas()
-        val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
-
-        canvas.setBitmap(bitmap)
-        view.draw(canvas)
-
-        return bitmap
-    }
-}
-
-class NameBitmapView @JvmOverloads constructor(
-    context: Context,
-    attrs: AttributeSet? = null,
-    defStyle: Int = 0
-) : LinearLayoutCompat(context, attrs, defStyle) {
-
-    private val view = ComposeView(context)
-    private val nameState = mutableStateOf(NameState("", "", -1, -1))
-
-    var onBitmapCreated: (Bitmap) -> Unit = {}
-
-
-    init {
-        view.visibility = View.GONE
-        view.layoutParams = LayoutParams(width, height)
-        this.addView(view)
-
-        view.setContent {
-            NameToBitmap(nameState = nameState)
-        }
-
-        view.addOnLayoutChangeListener { view, _, _, _, _, _, _, _, _ ->
-            val width = 1270
-            val height = 1080
-            val graphicUtils = GraphicUtils()
-            val bitmap =
-                graphicUtils.createBitmapFromView(view = view, width = width, height = height)
-            onBitmapCreated(bitmap)
-        }
-    }
-
-    fun updateState(
-        firstName: String,
-        lastName: String,
-        firstRandomIndex: Int,
-        secondRandomIndex: Int
-    ) {
-        nameState.value = NameState(
-            firstName, lastName, firstRandomIndex, secondRandomIndex
-        )
-    }
-
-}
-
 
 data class NameState(
     val firstName: String,
@@ -121,6 +47,13 @@ fun NameToBitmap(
         val _lastName = nameState.value.lastName
         val _firstRandomIndex = nameState.value.firstRandomIndex
         val _secondRandomIndex = nameState.value.secondRandomIndex
+
+        Text(
+            text = "If",
+            style = MaterialTheme.typography.h2,
+            fontSize = 42.sp,
+            fontWeight = FontWeight.Medium
+        )
 
         if (_firstName.length >= 7 || _lastName.length >= 7) {
             Column(
@@ -229,7 +162,20 @@ fun NameToBitmap(
             fontWeight = FontWeight.SemiBold,
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(28.dp))
+
+        Text(
+            text = "What's Yours",
+            style = MaterialTheme.typography.h2,
+            fontSize = 36.sp,
+            fontWeight = FontWeight.Medium
+        )
+        Text(
+            text = "Name?",
+            style = MaterialTheme.typography.h2,
+            fontSize = 36.sp,
+            fontWeight = FontWeight.SemiBold
+        )
     }
 }
 
