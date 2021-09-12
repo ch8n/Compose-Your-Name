@@ -16,5 +16,4 @@ local.properties
 .idea
 build
 keys.gradle
-
 google-services.json

@@ -192,7 +192,9 @@ fun HomeScreen(navController: NavHostController) {
             contentAlignment = Alignment.BottomCenter
         ) {
 
-            OutlinedButton(onClick = { navController.navigate(Screen.NameForm.route) }) {
+            OutlinedButton(onClick = {
+                navController.navigate(Screen.NameForm.route)
+            }) {
                 Text(
                     text = "What's Yours?",
                     style = MaterialTheme.typography.h2,
