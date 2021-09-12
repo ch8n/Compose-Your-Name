@@ -15,21 +15,20 @@ You recently might have seen this meme on Instagram, I also did so a sample app 
 </table>
 
 
-
 ## Preview
 <table>
   <tr>
     <td>
-        <img src="./preview2.jpeg" height=400px/>
+        <img src="./screen_1.png" height=400px/>
     </td>
     <td>
-        <img src="./preview3.jpeg" height =400px/>
+        <img src="./screen_2.png" height=400px/>
     </td>
     <td>
-        <img src="./preview4.jpeg" height =400px/>
+        <img src="./screen_3.png" height=400px/>
     </td>
     <td>
-        <img src="./preview5.jpeg" height =400px/>
+        <img src="./screen_4.png" height=400px/>
     </td>
   </tr>
 </table>
