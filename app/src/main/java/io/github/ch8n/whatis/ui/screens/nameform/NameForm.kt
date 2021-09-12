@@ -1,6 +1,9 @@
 package io.github.ch8n.whatis.ui.screens.nameform
 
 
+import android.app.Activity
+import android.content.Context
+import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -19,6 +22,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.google.android.gms.ads.AdError
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.FullScreenContentCallback
+import com.google.android.gms.ads.LoadAdError
+import com.google.android.gms.ads.interstitial.InterstitialAd
+import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
+import io.github.ch8n.whatis.AdConfig
 import io.github.ch8n.whatis.ui.navigation.Screen
 import whatis.R
 import java.util.*
@@ -68,7 +78,7 @@ fun NameFormScreen(navController: NavHostController) {
                 },
                 value = firstNameText,
                 singleLine = true,
-                isError = firstNameText.length < 3
+                isError = firstNameText.length < 2,
             )
 
             Spacer(modifier = Modifier.height(28.dp))
@@ -94,7 +104,7 @@ fun NameFormScreen(navController: NavHostController) {
                 },
                 value = lastNameText,
                 singleLine = true,
-                isError = lastNameText.length < 3
+                isError = lastNameText.length < 2
             )
         }
 
@@ -105,7 +115,7 @@ fun NameFormScreen(navController: NavHostController) {
             contentAlignment = Alignment.BottomCenter
         ) {
             OutlinedButton(onClick = {
-                if (firstNameText.length > 3 && lastNameText.length > 3) {
+                if (firstNameText.length > 2 && lastNameText.length > 2) {
                     navController.navigate(
                         Screen.NameReveal.withArgs(
                             "firstName" to firstNameText.lowercase(Locale.getDefault())
@@ -148,4 +158,44 @@ fun NameFormScreen(navController: NavHostController) {
 @Composable
 fun PreviewNameFormScreen() {
     NameFormScreen(NavHostController(LocalContext.current))
+}
+
+
+fun loadAd(context: Context, adConfig: AdConfig) {
+    val adRequest: AdRequest = AdRequest.Builder().build()
+
+    InterstitialAd.load(context, "ca-app-pub-3940256099942544/1033173712", adRequest,
+        object : InterstitialAdLoadCallback() {
+            override fun onAdLoaded(interstitialAd: InterstitialAd) {
+                adConfig.ads = interstitialAd
+                adConfig.ads?.setImmersiveMode(true)
+                Log.e("AdsLoader", "onAdLoaded")
+
+                adConfig.ads?.fullScreenContentCallback =
+                    object : FullScreenContentCallback() {
+                        override fun onAdDismissedFullScreenContent() {
+                            super.onAdDismissedFullScreenContent()
+                            Log.e("AdsLoader", "onAdDismissedFullScreenContent")
+                            adConfig.onAdDismissed.invoke(null)
+                        }
+
+                        override fun onAdFailedToShowFullScreenContent(p0: AdError) {
+                            super.onAdFailedToShowFullScreenContent(p0)
+                            adConfig.onAdDismissed.invoke(p0)
+                        }
+
+                        override fun onAdShowedFullScreenContent() {
+                            super.onAdShowedFullScreenContent()
+                            Log.e("AdsLoader", "onAdDismissedFullScreenContent")
+                            adConfig.onAdDisplayed.invoke()
+                        }
+                    }
+
+                adConfig.ads?.show(context as Activity)
+            }
+
+            override fun onAdFailedToLoad(loadAdError: LoadAdError) {
+                Log.e("AdsLoader", "${loadAdError.message}")
+            }
+        })
 }

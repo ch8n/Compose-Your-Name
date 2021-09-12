@@ -14,6 +14,8 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import io.github.ch8n.whatis.AdConfig
+import io.github.ch8n.whatis.ui.screens.nameform.loadAd
 import io.github.ch8n.whatis.ui.theme.WhatisTheme
 import kotlinx.coroutines.MainScope
 import kotlinx.coroutines.launch
@@ -79,12 +81,7 @@ class ShareActivity : AppCompatActivity() {
                             .wrapContentHeight()
                     ) {
                         Column {
-                            val (isLoading, setLoading) = remember { mutableStateOf(false) }
                             Spacer(modifier = Modifier.height(20.dp))
-
-                            if (isLoading) {
-                                LinearProgressIndicator()
-                            }
 
                             Row(
                                 modifier = Modifier
@@ -98,18 +95,23 @@ class ShareActivity : AppCompatActivity() {
                                         modifier = Modifier
                                             .padding(start = 16.dp)
                                             .clickable {
-                                                setLoading(true)
-                                                share(composeView)
-                                                setLoading(false)
+                                                loadAd(this@ShareActivity, AdConfig(
+                                                    onAdDismissed = {
+                                                        share(composeView)
+                                                    }
+                                                ))
                                             }
                                     ) {
                                         Icon(
                                             painter = painterResource(id = _share.icon),
                                             contentDescription = "",
                                             tint = Color.Unspecified,
-                                            modifier = Modifier.size(width = 36.dp, height = 36.dp)
+                                            modifier = Modifier.size(width = 48.dp, height = 48.dp)
                                         )
-                                        Text(text = _share.name)
+                                        Text(
+                                            text = _share.name,
+                                            style = MaterialTheme.typography.body1
+                                        )
                                     }
                                 }
                             }

@@ -61,7 +61,7 @@ fun WhatisNavigation() {
             NameRevealScreen(
                 navController = navController,
                 firstName = requireNotNull(_entry.arguments?.getString("firstName")),
-                lastName = requireNotNull(_entry.arguments?.getString("lastName"))
+                lastName = requireNotNull(_entry.arguments?.getString("lastName")),
             )
         }
 

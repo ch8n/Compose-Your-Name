@@ -9,15 +9,25 @@ import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
+import com.google.android.gms.ads.AdError
+import com.google.android.gms.ads.LoadAdError
+import com.google.android.gms.ads.interstitial.InterstitialAd
 import io.github.ch8n.whatis.ui.navigation.WhatisNavigation
 import io.github.ch8n.whatis.ui.theme.WhatisTheme
+
+
+data class AdConfig(
+    var ads: InterstitialAd? = null,
+    var onAdDisplayed: () -> Unit = {},
+    var onAdDismissed: (error: AdError?) -> Unit = {},
+    var onAdError: (LoadAdError) -> Unit = {},
+)
 
 class MainActivity : ComponentActivity() {
 
     @ExperimentalMaterialApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         setContent {
             WhatisTheme {
                 Surface(color = MaterialTheme.colors.background) {
@@ -26,6 +36,8 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
+
 }
 
 @Composable

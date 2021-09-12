@@ -21,7 +21,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import io.github.ch8n.whatis.AdConfig
 import io.github.ch8n.whatis.ui.screens.home.safeRandomIndex
+import io.github.ch8n.whatis.ui.screens.nameform.loadAd
 import io.github.ch8n.whatis.ui.screens.shareName.ShareActivity
 import kotlinx.coroutines.launch
 import java.util.*
@@ -38,6 +40,11 @@ fun NameRevealScreen(
     val scope = rememberCoroutineScope()
     var firstRandomIndex by remember { mutableStateOf(firstName.safeRandomIndex()) }
     var secondRandomIndex by remember { mutableStateOf(lastName.safeRandomIndex()) }
+    val (adCounter, setAdCounter) = remember { mutableStateOf(1) }
+
+    if (adCounter % 8 == 0) {
+        loadAd(LocalContext.current, AdConfig())
+    }
 
     Scaffold(
         scaffoldState = scaffoldState,
@@ -179,8 +186,8 @@ fun NameRevealScreen(
                     Row(
                         horizontalArrangement = Arrangement.Center
                     ) {
-
                         IconButton(onClick = {
+                            setAdCounter(adCounter + 1)
                             firstRandomIndex = firstName.safeRandomIndex()
                             secondRandomIndex = lastName.safeRandomIndex()
                         }) {
@@ -189,6 +196,7 @@ fun NameRevealScreen(
 
                         val clipboardManager = LocalClipboardManager.current
                         IconButton(onClick = {
+                            setAdCounter(adCounter + 1)
                             clipboardManager.setText(buildAnnotatedString {
                                 append("$firstName $lastName is $name")
                             })
@@ -220,6 +228,7 @@ fun NameRevealScreen(
                 contentAlignment = Alignment.BottomCenter
             ) {
                 OutlinedButton(onClick = {
+                    setAdCounter(adCounter + 1)
                     currentContext.startActivity(
                         Intent(currentContext, ShareActivity::class.java)
                             .also {
@@ -253,3 +262,4 @@ fun NameRevealScreen(
 fun PreviewNameRevealScreen() {
     NameRevealScreen(NavHostController(LocalContext.current), "", "")
 }
+
