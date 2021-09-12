@@ -1,17 +1,21 @@
 package io.github.ch8n.whatis.ui.screens.nameReveal.components
 
 import android.content.Context
+import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Canvas
+import android.net.Uri
 import android.util.AttributeSet
+import android.util.Log
 import android.view.View
-import android.view.ViewTreeObserver.OnGlobalLayoutListener
 import androidx.appcompat.widget.LinearLayoutCompat
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -19,46 +23,13 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.FileProvider
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
 import java.util.*
-
-
-class NameBitmapView @JvmOverloads constructor(
-    context: Context,
-    attrs: AttributeSet? = null,
-    defStyle: Int = 0
-) : LinearLayoutCompat(context, attrs, defStyle) {
-
-    fun setup(
-        firstName: String,
-        lastName: String,
-        firstRandomIndex: Int,
-        secondRandomIndex: Int,
-        onBitmapCreated: (bitmap: Bitmap) -> Unit
-    ) {
-        val width = 600
-        val height = 670
-
-        val view = ComposeView(context)
-        view.visibility = View.GONE
-        view.layoutParams = LayoutParams(width, height)
-        this.addView(view)
-
-        view.setContent {
-            NameToBitmap(firstName, lastName, firstRandomIndex, secondRandomIndex)
-        }
-
-        viewTreeObserver.addOnGlobalLayoutListener(object : OnGlobalLayoutListener {
-            override fun onGlobalLayout() {
-                val graphicUtils = GraphicUtils()
-                val bitmap = graphicUtils
-                    .createBitmapFromView(view = view, width = width, height = height)
-                onBitmapCreated(bitmap)
-                viewTreeObserver.removeOnGlobalLayoutListener(this)
-            }
-        })
-    }
-
-}
 
 class GraphicUtils {
 
@@ -85,22 +56,71 @@ class GraphicUtils {
     }
 }
 
+class NameBitmapView @JvmOverloads constructor(
+    context: Context,
+    attrs: AttributeSet? = null,
+    defStyle: Int = 0
+) : LinearLayoutCompat(context, attrs, defStyle) {
+
+    private val view = ComposeView(context)
+    private val nameState = mutableStateOf(NameState("", "", -1, -1))
+
+    var onBitmapCreated: (Bitmap) -> Unit = {}
+
+
+    init {
+        view.visibility = View.GONE
+        view.layoutParams = LayoutParams(width, height)
+        this.addView(view)
+
+        view.setContent {
+            NameToBitmap(nameState = nameState)
+        }
+
+        view.addOnLayoutChangeListener { view, _, _, _, _, _, _, _, _ ->
+            val width = 1270
+            val height = 1080
+            val graphicUtils = GraphicUtils()
+            val bitmap =
+                graphicUtils.createBitmapFromView(view = view, width = width, height = height)
+            onBitmapCreated(bitmap)
+        }
+    }
+
+    fun updateState(
+        firstName: String,
+        lastName: String,
+        firstRandomIndex: Int,
+        secondRandomIndex: Int
+    ) {
+        nameState.value = NameState(
+            firstName, lastName, firstRandomIndex, secondRandomIndex
+        )
+    }
+
+}
+
+
+data class NameState(
+    val firstName: String,
+    val lastName: String,
+    val firstRandomIndex: Int,
+    val secondRandomIndex: Int,
+)
+
 @Composable
 fun NameToBitmap(
-    firstName: String,
-    lastName: String,
-    firstRandomIndex: Int,
-    secondRandomIndex: Int
+    nameState: State<NameState>
 ) {
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        val _firstName = firstName
-        val _lastName = lastName
-        val _firstRandomIndex = firstRandomIndex
-        val _secondRandomIndex = secondRandomIndex
+        val _firstName = nameState.value.firstName
+        val _lastName = nameState.value.lastName
+        val _firstRandomIndex = nameState.value.firstRandomIndex
+        val _secondRandomIndex = nameState.value.secondRandomIndex
 
         if (_firstName.length >= 7 || _lastName.length >= 7) {
             Column(
@@ -191,13 +211,13 @@ fun NameToBitmap(
         )
 
         val name = "${
-            _firstName.get(_firstRandomIndex)
+            _firstName.getOrNull(_firstRandomIndex)
         }${
-            _firstName.get(_firstRandomIndex + 1)
+            _firstName.getOrNull(_firstRandomIndex + 1)
         }${
-            _lastName.get(_secondRandomIndex)
+            _lastName.getOrNull(_secondRandomIndex)
         }${
-            _lastName.get(_secondRandomIndex + 1)
+            _lastName.getOrNull(_secondRandomIndex + 1)
         }".lowercase(Locale.getDefault()).run {
             take(1).uppercase(Locale.getDefault()) + drop(1)
         }
@@ -211,4 +231,31 @@ fun NameToBitmap(
 
         Spacer(modifier = Modifier.height(16.dp))
     }
+}
+
+suspend fun saveImage(image: Bitmap, context: Context): Uri? =
+    withContext(Dispatchers.IO) {
+        val imagesFolder = File(context.cacheDir, "images")
+        var uri: Uri? = null
+        try {
+            imagesFolder.mkdirs()
+            val file = File(imagesFolder, "shared_image.png")
+            val stream = FileOutputStream(file)
+            image.compress(Bitmap.CompressFormat.PNG, 90, stream)
+            stream.flush()
+            stream.close()
+            uri = FileProvider.getUriForFile(context, "com.mydomain.fileprovider", file)
+        } catch (e: IOException) {
+            Log.d("Error", "IOException while trying to write file for sharing: " + e.message)
+        }
+        uri
+    }
+
+
+fun shareImageUri(context: Context, uri: Uri) {
+    val intent = Intent(Intent.ACTION_SEND)
+    intent.putExtra(Intent.EXTRA_STREAM, uri)
+    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+    intent.type = "image/png"
+    context.startActivity(intent)
 }

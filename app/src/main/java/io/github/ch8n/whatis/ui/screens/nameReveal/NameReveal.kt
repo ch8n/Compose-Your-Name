@@ -1,8 +1,8 @@
 package io.github.ch8n.whatis.ui.screens.nameReveal
 
 
-import android.graphics.Bitmap
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -21,10 +21,8 @@ import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.viewinterop.AndroidView
 import androidx.navigation.NavHostController
 import io.github.ch8n.whatis.ui.screens.home.safeRandomIndex
-import io.github.ch8n.whatis.ui.screens.nameReveal.components.NameBitmapView
 import kotlinx.coroutines.launch
 import whatis.R
 import java.util.*
@@ -37,15 +35,7 @@ data class ShareItem(
 val shareOptions = listOf(
     ShareItem(
         icon = R.drawable.crystal_ball,
-        name = "Whatsapp"
-    ),
-    ShareItem(
-        icon = R.drawable.crystal_ball,
-        name = "Instagram"
-    ),
-    ShareItem(
-        icon = R.drawable.crystal_ball,
-        name = "Facebook"
+        name = "Share"
     ),
     ShareItem(
         icon = R.drawable.crystal_ball,
@@ -54,12 +44,11 @@ val shareOptions = listOf(
 )
 
 
-@OptIn(ExperimentalMaterialApi::class)
+@ExperimentalMaterialApi
 @Composable
 fun NameRevealScreen(navController: NavHostController) {
     val scaffoldState = rememberScaffoldState()
     val scope = rememberCoroutineScope()
-    var nameBitmap: Bitmap? = null
     val firstName by remember { mutableStateOf("Chetan") }
     val lastName by remember { mutableStateOf("Gupta") }
     var firstRandomIndex by remember { mutableStateOf(firstName.safeRandomIndex()) }
@@ -77,12 +66,12 @@ fun NameRevealScreen(navController: NavHostController) {
         modifier = Modifier.fillMaxSize()
     ) { _innerPadding ->
 
-
         val bottomSheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
         ModalBottomSheetLayout(
             sheetState = bottomSheetState,
             sheetContent = {
                 Column {
+                    val (isLoading, setLoading) = remember { mutableStateOf(false) }
                     Spacer(modifier = Modifier.height(20.dp))
                     Row(
                         modifier = Modifier
@@ -90,10 +79,15 @@ fun NameRevealScreen(navController: NavHostController) {
                             .wrapContentHeight(),
                         horizontalArrangement = Arrangement.Center
                     ) {
-                        shareOptions.dropLast(1).forEach { _share ->
+                        val currentContext = LocalContext.current
+                        shareOptions.forEachIndexed { index, _share ->
                             Column(
                                 horizontalAlignment = Alignment.CenterHorizontally,
-                                modifier = Modifier.padding(start = 16.dp)
+                                modifier = Modifier
+                                    .padding(start = 16.dp)
+                                    .clickable {
+                                        //TODO start activity
+                                    }
                             ) {
                                 Icon(
                                     painter = painterResource(id = _share.icon),
@@ -104,22 +98,18 @@ fun NameRevealScreen(navController: NavHostController) {
                             }
                         }
                     }
+                    Spacer(modifier = Modifier.height(8.dp))
 
-                    Divider(modifier = Modifier.padding(16.dp))
-
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .wrapContentHeight(),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Icon(
-                            painter = painterResource(id = shareOptions.last().icon),
-                            contentDescription = "",
-                            tint = Color.Unspecified
-                        )
-                        Text(text = shareOptions.last().name)
+                    if (isLoading) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Text(text = "Preparing Image...")
+                            Spacer(modifier = Modifier.height(6.dp))
+                            LinearProgressIndicator()
+                        }
                     }
+
                     Spacer(modifier = Modifier.height(20.dp))
                 }
             }
@@ -252,6 +242,7 @@ fun NameRevealScreen(navController: NavHostController) {
                         Row(
                             horizontalArrangement = Arrangement.Center
                         ) {
+
                             IconButton(onClick = {
                                 firstRandomIndex = firstName.safeRandomIndex()
                                 secondRandomIndex = lastName.safeRandomIndex()
@@ -280,6 +271,7 @@ fun NameRevealScreen(navController: NavHostController) {
 
                         }
 
+                        Spacer(modifier = Modifier.height(16.dp))
                     }
                 }
 
@@ -289,22 +281,6 @@ fun NameRevealScreen(navController: NavHostController) {
                         .offset(y = (-36).dp),
                     contentAlignment = Alignment.BottomCenter
                 ) {
-
-                    AndroidView(
-                        factory = { context ->
-                            val nameView = NameBitmapView(context)
-                            nameView.setup(
-                                firstName = firstName,
-                                lastName = lastName,
-                                firstRandomIndex = firstRandomIndex,
-                                secondRandomIndex = secondRandomIndex
-                            ) { bitmap ->
-                                nameBitmap = bitmap
-                            }
-                            nameView
-                        })
-
-
                     OutlinedButton(onClick = {
                         scope.launch { bottomSheetState.show() }
                     }) {
@@ -323,6 +299,7 @@ fun NameRevealScreen(navController: NavHostController) {
 }
 
 
+@ExperimentalMaterialApi
 @Preview(
     showBackground = true,
     device = Devices.NEXUS_6P

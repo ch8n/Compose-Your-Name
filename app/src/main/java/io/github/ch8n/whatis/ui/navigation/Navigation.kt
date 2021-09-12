@@ -1,5 +1,6 @@
 package io.github.ch8n.whatis.ui.navigation
 
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -7,6 +8,7 @@ import androidx.navigation.compose.rememberNavController
 import io.github.ch8n.whatis.ui.screens.home.HomeScreen
 import io.github.ch8n.whatis.ui.screens.nameReveal.NameRevealScreen
 import io.github.ch8n.whatis.ui.screens.nameform.NameFormScreen
+import io.github.ch8n.whatis.ui.screens.stories.StoriesScreen
 
 
 enum class Screen {
@@ -16,6 +18,7 @@ enum class Screen {
     Stories
 }
 
+@ExperimentalMaterialApi
 @Composable
 fun WhatisNavigation() {
     val navController = rememberNavController()
@@ -36,7 +39,7 @@ fun WhatisNavigation() {
         }
 
         composable(Screen.Stories.name) {
-            NameRevealScreen(navController = navController)
+            StoriesScreen(navController = navController)
         }
     }
 }
