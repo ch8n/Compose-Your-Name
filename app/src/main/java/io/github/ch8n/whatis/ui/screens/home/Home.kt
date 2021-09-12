@@ -1,7 +1,10 @@
 package io.github.ch8n.whatis.ui.screens.home
 
+import android.net.Uri
+import androidx.browser.customtabs.CustomTabsIntent
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.OutlinedButton
 import androidx.compose.material.Text
@@ -10,6 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
@@ -57,6 +61,9 @@ fun HomeScreen(navController: NavHostController) {
     val lastName by remember { mutableStateOf(fullName.second) }
     val firstRandomIndex by remember { mutableStateOf(firstName.safeRandomIndex()) }
     val secondRandomIndex by remember { mutableStateOf(lastName.safeRandomIndex()) }
+    val customTabsIntent = remember { CustomTabsIntent.Builder().build() }
+    val currentContext = LocalContext.current
+
     val nicName = "${
         firstName.get(firstRandomIndex)
     }${
@@ -195,20 +202,22 @@ fun HomeScreen(navController: NavHostController) {
 
         Box(
             modifier = Modifier
-                .fillMaxSize()
-                .offset(y = (-36).dp),
+                .fillMaxSize(),
             contentAlignment = Alignment.BottomCenter
         ) {
 
-            OutlinedButton(onClick = {
-                AppAnalytics.log(
-                    "HomeScreen",
-                    "Action" to "Continue_Clicked",
-                    "fullName" to fullName,
-                    "nickName" to nicName
-                )
-                navController.navigate(Screen.NameForm.route)
-            }) {
+            OutlinedButton(
+                onClick = {
+                    AppAnalytics.log(
+                        "HomeScreen",
+                        "Action" to "Continue_Clicked",
+                        "fullName" to fullName,
+                        "nickName" to nicName
+                    )
+                    navController.navigate(Screen.NameForm.route)
+                },
+                modifier = Modifier.offset(y = (-48).dp)
+            ) {
                 Text(
                     text = "What's Yours?",
                     style = MaterialTheme.typography.h2,
@@ -216,9 +225,41 @@ fun HomeScreen(navController: NavHostController) {
                     fontWeight = FontWeight.Medium
                 )
             }
-        }
-    }
 
+            Row(
+                modifier = Modifier.padding(8.dp)
+            ) {
+                ClickableText(text = AnnotatedString("Terms & Condition"), onClick = {
+                    AppAnalytics.log(
+                        "HomeScreen",
+                        "Action" to "Terms_&_Condition_Clicked"
+                    )
+                    customTabsIntent.launchUrl(
+                        currentContext,
+                        Uri.parse("https://github.com/ch8n/Compose-WhatIs/blob/main/Terms%26Condition.md")
+                    )
+                })
+
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(text = "and")
+
+                Spacer(modifier = Modifier.width(8.dp))
+                ClickableText(text = AnnotatedString("Privacy Policy"), onClick = {
+                    AppAnalytics.log(
+                        "HomeScreen",
+                        "Action" to "Privacy_Policy_Clicked"
+                    )
+                    customTabsIntent.launchUrl(
+                        currentContext,
+                        Uri.parse("https://github.com/ch8n/Compose-WhatIs/blob/main/PrivacyPolicy.md")
+                    )
+                })
+
+            }
+        }
+
+
+    }
 
 }
 
