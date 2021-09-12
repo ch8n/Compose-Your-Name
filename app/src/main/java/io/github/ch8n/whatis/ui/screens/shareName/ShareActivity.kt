@@ -14,8 +14,6 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import io.github.ch8n.whatis.AdConfig
-import io.github.ch8n.whatis.ui.screens.nameform.loadAd
 import io.github.ch8n.whatis.ui.service.AppAnalytics
 import io.github.ch8n.whatis.ui.theme.WhatisTheme
 import kotlinx.coroutines.MainScope
@@ -107,11 +105,12 @@ class ShareActivity : AppCompatActivity() {
                                                     "ShareScreen",
                                                     "Action" to "Share_Clicked"
                                                 )
-                                                loadAd(this@ShareActivity, AdConfig(
-                                                    onAdDismissed = {
-                                                        share(composeView)
-                                                    }
-                                                ))
+                                                share(composeView)
+//                                                loadAd(this@ShareActivity, AdConfig(
+//                                                    onAdDismissed = {
+//
+//                                                    }
+//                                                ))
                                             }
                                     ) {
                                         Icon(

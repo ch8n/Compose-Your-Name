@@ -21,9 +21,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import io.github.ch8n.whatis.AdConfig
 import io.github.ch8n.whatis.ui.screens.home.safeRandomIndex
-import io.github.ch8n.whatis.ui.screens.nameform.loadAd
 import io.github.ch8n.whatis.ui.screens.shareName.ShareActivity
 import io.github.ch8n.whatis.ui.service.AppAnalytics
 import kotlinx.coroutines.launch
@@ -77,7 +75,7 @@ fun NameRevealScreen(
 
 
     if (adCounter % 8 == 0) {
-        loadAd(LocalContext.current, AdConfig())
+        //loadAd(LocalContext.current, AdConfig())
     }
 
     Scaffold(
