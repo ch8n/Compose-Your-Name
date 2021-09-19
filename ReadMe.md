@@ -1,4 +1,4 @@
-# [Compose-Whatis?](https://chetangupta.net/compose-97/)
+# [Compose-Your-Name?](https://chetangupta.net)
 A Jetpack Compose App Meme App for knowing you nick name
 
 ## Inspiration
