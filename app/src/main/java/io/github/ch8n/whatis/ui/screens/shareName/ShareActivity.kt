@@ -106,11 +106,6 @@ class ShareActivity : AppCompatActivity() {
                                                     "Action" to "Share_Clicked"
                                                 )
                                                 share(composeView)
-//                                                loadAd(this@ShareActivity, AdConfig(
-//                                                    onAdDismissed = {
-//
-//                                                    }
-//                                                ))
                                             }
                                     ) {
                                         Icon(

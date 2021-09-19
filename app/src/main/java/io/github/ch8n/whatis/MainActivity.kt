@@ -12,14 +12,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import io.github.ch8n.whatis.ui.navigation.WhatisNavigation
 import io.github.ch8n.whatis.ui.theme.WhatisTheme
 
-//
-//data class AdConfig(
-//    var ads: InterstitialAd? = null,
-//    var onAdDisplayed: () -> Unit = {},
-//    var onAdDismissed: (error: AdError?) -> Unit = {},
-//    var onAdError: (LoadAdError) -> Unit = {},
-//)
-
 class MainActivity : ComponentActivity() {
 
     @ExperimentalMaterialApi

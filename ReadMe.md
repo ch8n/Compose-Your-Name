@@ -14,7 +14,6 @@ You recently might have seen this meme on Instagram, I also did so a sample app 
 </tr>
 </table>
 
-
 ## Preview
 <table>
   <tr>
@@ -32,6 +31,9 @@ You recently might have seen this meme on Instagram, I also did so a sample app 
     </td>
   </tr>
 </table>
+
+## Find on playstore
+<a href='https://play.google.com/store/apps/details?id=io.github.ch8n.whatis&pcampaignid=pcampaignidMKT-Other-global-all-co-prtnr-py-PartBadge-Mar2515-1'><img alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png'/></a>
 
 ## Features
 - Generate Nick Name from input names
